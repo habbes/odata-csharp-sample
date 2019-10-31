@@ -1,6 +1,25 @@
 # Prerequisites
 *.d
 
+# Build output
+bin/
+obj/
+
+# VS files
+*.suo
+*.DotSettings
+*.user
+*.vstemplate
+*.lock.json
+
+# Downloaded Nuget packages
+sln/packages/
+test/packages/
+
+# Symbol
+*.pdb
+
+
 # Compiled Object files
 *.slo
 *.lo
