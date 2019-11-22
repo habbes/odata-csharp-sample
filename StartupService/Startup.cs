@@ -12,6 +12,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNet.OData.Extensions;
+using Microsoft.AspNet.OData.Builder;
+using Microsoft.OData.Edm;
+using Microsoft.EntityFrameworkCore;
+using StartupService.Models;
 
 namespace StartupService
 {
@@ -27,6 +31,7 @@ namespace StartupService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<StartupDbContext>(opt => opt.UseInMemoryDatabase("Startups"));
             services.AddOData();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -43,7 +48,19 @@ namespace StartupService
                 app.UseHsts();
             }
 
-            app.UseMvc();
+            app.UseMvc(routeBuilder =>
+            {
+                routeBuilder.Select().Filter().Expand().MaxTop(100).OrderBy().Count();
+                routeBuilder.MapODataServiceRoute("ODataRoute", "odata", GetEdmModel());
+            });
+        }
+
+        private static IEdmModel GetEdmModel()
+        {
+            var builder = new ODataConventionModelBuilder();
+            builder.EntitySet<Company>("Companies");
+            builder.EntitySet<Person>("People");
+            return builder.GetEdmModel();
         }
     }
 }
