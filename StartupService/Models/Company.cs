@@ -8,7 +8,7 @@ namespace StartupService.Models
         public string Name { get; set; }
         public int YearFounded { get; set; }
         public CompanyType Type { get; set; }
-        public List<Person> Founders;
+        public ICollection<Person> Founders { get; set; }
 
         public Address Location { get; set; }
     }

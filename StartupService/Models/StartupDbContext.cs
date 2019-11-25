@@ -12,7 +12,9 @@ namespace StartupService.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Company>().OwnsOne(company => company.Location);
+            var companyBuilder = modelBuilder.Entity<Company>();
+            companyBuilder.OwnsOne(company => company.Location);
+            companyBuilder.HasMany(company => company.Founders);
         }
     }
 }

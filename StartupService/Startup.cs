@@ -54,16 +54,8 @@ namespace StartupService
             app.UseMvc(routeBuilder =>
             {
                 routeBuilder.Select().Filter().Expand().MaxTop(100).OrderBy().Count();
-                routeBuilder.MapODataServiceRoute("ODataRoute", "odata", GetEdmModel());
+                routeBuilder.MapODataServiceRoute("ODataRoute", "odata", StartupEdmModel.GetEdmModel());
             });
-        }
-
-        private static IEdmModel GetEdmModel()
-        {
-            var builder = new ODataConventionModelBuilder();
-            builder.EntitySet<Company>("Companies");
-            builder.EntitySet<Person>("People");
-            return builder.GetEdmModel();
         }
     }
 }
