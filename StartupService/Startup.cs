@@ -31,7 +31,7 @@ namespace StartupService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<StartupDbContext>(opt => opt.UseInMemoryDatabase("Startups"));
+            services.AddDbContext<StartupDbContext>(opt => opt.UseInMemoryDatabase("Startups"), ServiceLifetime.Singleton);
             services.AddOData();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -39,6 +39,9 @@ namespace StartupService
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            var db = app.ApplicationServices.GetRequiredService<StartupDbContext>();
+            DataSource.SeedDatabase(db);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
