@@ -1,6 +1,8 @@
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using StartupService.Models;
 
 namespace StartupService.Controllers
@@ -23,14 +25,57 @@ namespace StartupService.Controllers
         [EnableQuery]
         public IActionResult Get(int key)
         {
-            return Ok(db.Companies.FirstOrDefault(c => c.Id == key));
+            var company = db.Companies.FirstOrDefault(c => c.Id == key);
+            if (company == null)
+            {
+                return NotFound();
+            }
+            return Ok(company);
         }
 
         [EnableQuery]
-        public IActionResult Post([FromBody] Company company)
+        public async Task<IActionResult> Post([FromBody] Company company)
         {
             db.Companies.Add(company);
-            db.SaveChanges();
+            await db.SaveChangesAsync();
+            return Created(company);
+        }
+
+        [EnableQuery]
+        public async Task<IActionResult> Patch([FromODataUri] int key, Delta<Company> delta)
+        {
+            var company = db.Companies.FirstOrDefault(c => c.Id == key);
+            if (company == null)
+            {
+                return NotFound();
+            }
+            delta.Patch(company);
+            await db.SaveChangesAsync();
+            return Updated(company);
+        }
+
+        [EnableQuery]
+        public async Task<IActionResult> Put([FromODataUri] int key, [FromBody] Company company)
+        {
+            if (key != company.Id)
+            {
+                return BadRequest();
+            }
+            db.Entry(company).State = EntityState.Modified;
+            await db.SaveChangesAsync();
+            return Updated(company);
+        }
+
+        [EnableQuery]
+        public async Task<IActionResult> Delete(int key)
+        {
+            var company = db.Companies.FirstOrDefault(c => c.Id == key);
+            if (company == null)
+            {
+                return NotFound();
+            }
+            db.Remove(company);
+            await db.SaveChangesAsync();
             return Ok(company);
         }
     }
