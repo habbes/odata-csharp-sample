@@ -15,16 +15,34 @@ namespace StartupClient
         static async Task Main(string[] args)
         {
             await InteractWithService();
+            var companies = await container.Companies.Expand("Founders").ExecuteAsync();
+            Console.WriteLine("{0}Final company list:{0}", Environment.NewLine);
+
+            foreach (var company in companies)
+            {
+                DisplayCompany(company);
+                Console.WriteLine();
+            }
         }
 
         static async Task InteractWithService()
         {
-            var query = container.Companies.Where(c => c.YearFounded < 2000) as DataServiceQuery<Company>;
+            var query = container.Companies.Expand("Founders")
+                .Where(c => c.YearFounded < 2000) as DataServiceQuery<Company>;
             var companies = (await query.ExecuteAsync()).ToList();
             foreach (var company in companies.Where(c => c.YearFounded < 2000))
             {
                 DisplayCompany(company);
                 Console.WriteLine();
+            }
+
+            var ms = companies.FirstOrDefault(c => c.Name == "Microsoft");
+            if (ms != null)
+            {
+                ms.Name = "Microsoft Corporation";
+                container.UpdateObject(ms);
+                await container.SaveChangesAsync();
+                DisplayCompany(ms, "Updated Microsoft");
             }
             
             var newCompany = new Company
@@ -37,10 +55,24 @@ namespace StartupClient
             };
             container.AddToCompanies(newCompany);
             await container.SaveChangesAsync();
+            DisplayCompany(newCompany, "Added new company...");
+
+            var toDelete = companies.FirstOrDefault(c => c.Type == CompanyType.Private);
+            if (toDelete != null)
+            {
+                container.DeleteObject(toDelete);
+                await container.SaveChangesAsync();
+                DisplayCompany(toDelete, "Removed company");
+            }
+
         }
 
-        static void DisplayCompany(Company company)
+        static void DisplayCompany(Company company, string message = "")
         {
+            if (message.Length > 0)
+            {
+                Console.WriteLine(message);
+            }
             Console.WriteLine(company.Name);
             Console.WriteLine("Location: {0}, {1}", company.Location.City, company.Location.Country);
             Console.WriteLine("Type: {0}", company.Type.ToString());
