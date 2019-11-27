@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNet.OData.Extensions;
+using Microsoft.AspNet.OData.Batch;
 using Microsoft.AspNet.OData.Builder;
 using Microsoft.OData.Edm;
 using Microsoft.EntityFrameworkCore;
@@ -51,10 +52,12 @@ namespace StartupService
                 app.UseHsts();
             }
 
+            app.UseODataBatching();
             app.UseMvc(routeBuilder =>
             {
+                var odataBatchHandler = new DefaultODataBatchHandler();
                 routeBuilder.Select().Filter().Expand().MaxTop(100).OrderBy().Count();
-                routeBuilder.MapODataServiceRoute("ODataRoute", "odata", StartupEdmModel.GetEdmModel());
+                routeBuilder.MapODataServiceRoute("ODataRoute", "odata", StartupEdmModel.GetEdmModel(), odataBatchHandler);
             });
         }
     }
