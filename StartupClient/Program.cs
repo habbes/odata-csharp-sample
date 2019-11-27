@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Collections.Generic;
 using Microsoft.OData.Client;
 using StartupService.Models;
 
@@ -14,15 +15,28 @@ namespace StartupClient
 
         static async Task Main(string[] args)
         {
-            await InteractWithService();
-            var companies = await container.Companies.Expand("Founders").ExecuteAsync();
-            Console.WriteLine("{0}Final company list:{0}", Environment.NewLine);
+            //await InteractWithService();
+            //var companies = await container.Companies.Expand("Founders").ExecuteAsync();
+            //Console.WriteLine("{0}Final company list:{0}", Environment.NewLine);
 
-            foreach (var company in companies)
-            {
-                DisplayCompany(company);
-                Console.WriteLine();
-            }
+            //foreach (var company in companies)
+            //{
+            //    DisplayCompany(company);
+            //    Console.WriteLine();
+            //}
+
+            await TestFunction();
+        }
+
+        static async Task TestFunction()
+        {
+            var param = new List<DummyType>();
+            param.AddRange(new DummyType[] {
+                new DummyType { Foo = 1, Bar = 2 },
+                new DummyType { Foo = 2, Bar = 4 }
+            });
+            var response = await container.DummyFunc(param).GetValueAsync();
+            Console.WriteLine("Function result {0}", response);
         }
 
         static async Task InteractWithService()
