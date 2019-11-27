@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generation date: 11/26/2019 5:11:29 PM
+// Generation date: 11/27/2019 11:55:13 AM
 namespace StartupService.Models
 {
     /// <summary>
@@ -343,67 +343,6 @@ namespace StartupService.Models
         partial void OnCountryChanged();
     }
     /// <summary>
-    /// There are no comments for DummyType in the schema.
-    /// </summary>
-    public partial class DummyType
-    {
-        /// <summary>
-        /// Create a new DummyType object.
-        /// </summary>
-        /// <param name="foo">Initial value of Foo.</param>
-        /// <param name="bar">Initial value of Bar.</param>
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "2.6.0")]
-        public static DummyType CreateDummyType(int foo, long bar)
-        {
-            DummyType dummyType = new DummyType();
-            dummyType.Foo = foo;
-            dummyType.Bar = bar;
-            return dummyType;
-        }
-        /// <summary>
-        /// There are no comments for Property Foo in the schema.
-        /// </summary>
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "2.6.0")]
-        public int Foo
-        {
-            get
-            {
-                return this._Foo;
-            }
-            set
-            {
-                this.OnFooChanging(value);
-                this._Foo = value;
-                this.OnFooChanged();
-            }
-        }
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "2.6.0")]
-        private int _Foo;
-        partial void OnFooChanging(int value);
-        partial void OnFooChanged();
-        /// <summary>
-        /// There are no comments for Property Bar in the schema.
-        /// </summary>
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "2.6.0")]
-        public long Bar
-        {
-            get
-            {
-                return this._Bar;
-            }
-            set
-            {
-                this.OnBarChanging(value);
-                this._Bar = value;
-                this.OnBarChanged();
-            }
-        }
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "2.6.0")]
-        private long _Bar;
-        partial void OnBarChanging(long value);
-        partial void OnBarChanged();
-    }
-    /// <summary>
     /// There are no comments for CompanyType in the schema.
     /// </summary>
     public enum CompanyType
@@ -575,26 +514,28 @@ namespace Default
         <Property Name=""City"" Type=""Edm.String"" />
         <Property Name=""Country"" Type=""Edm.String"" />
       </ComplexType>
-      <ComplexType Name=""DummyType"">
-        <Property Name=""Foo"" Type=""Edm.Int32"" Nullable=""false"" />
-        <Property Name=""Bar"" Type=""Edm.Int64"" Nullable=""false"" />
-      </ComplexType>
       <EnumType Name=""CompanyType"">
         <Member Name=""Private"" Value=""0"" />
         <Member Name=""Public"" Value=""1"" />
       </EnumType>
     </Schema>
     <Schema Namespace=""Default"" xmlns=""http://docs.oasis-open.org/odata/ns/edm"">
-      <Function Name=""DummyFunc"">
-        <Parameter Name=""param"" Type=""Collection(StartupService.Models.DummyType)"" />
-        <ReturnType Type=""Edm.Int64"" Nullable=""false"" />
+      <Function Name=""MostPopularLocationInPeriod"">
+        <Parameter Name=""startYear"" Type=""Edm.Int32"" Nullable=""false"" />
+        <Parameter Name=""endYear"" Type=""Edm.Int32"" Nullable=""false"" />
+        <ReturnType Type=""StartupService.Models.Address"" />
       </Function>
+      <Action Name=""MakePublic"" IsBound=""true"">
+        <Parameter Name=""bindingParameter"" Type=""Collection(StartupService.Models.Company)"" />
+        <Parameter Name=""company"" Type=""Edm.Int32"" Nullable=""false"" />
+        <ReturnType Type=""StartupService.Models.Company"" />
+      </Action>
       <EntityContainer Name=""Container"">
         <EntitySet Name=""Companies"" EntityType=""StartupService.Models.Company"">
           <NavigationPropertyBinding Path=""Founders"" Target=""People"" />
         </EntitySet>
         <EntitySet Name=""People"" EntityType=""StartupService.Models.Person"" />
-        <FunctionImport Name=""DummyFunc"" Function=""Default.DummyFunc"" IncludeInServiceDocument=""true"" />
+        <FunctionImport Name=""MostPopularLocationInPeriod"" Function=""Default.MostPopularLocationInPeriod"" IncludeInServiceDocument=""true"" />
       </EntityContainer>
     </Schema>
   </edmx:DataServices>
@@ -638,11 +579,30 @@ namespace Default
             }
         }
         /// <summary>
-        /// There are no comments for DummyFunc in the schema.
+        /// There are no comments for MostPopularLocationInPeriod in the schema.
         /// </summary>
-        public global::Microsoft.OData.Client.DataServiceQuerySingle<long> DummyFunc(global::System.Collections.Generic.ICollection<global::StartupService.Models.DummyType> param)
+        public global::Microsoft.OData.Client.DataServiceQuerySingle<global::StartupService.Models.Address> MostPopularLocationInPeriod(int startYear, int endYear)
         {
-            return this.CreateFunctionQuerySingle<long>("", "DummyFunc", false, new global::Microsoft.OData.Client.UriOperationParameter("param", param));
+            return this.CreateFunctionQuerySingle<global::StartupService.Models.Address>("", "MostPopularLocationInPeriod", false, new global::Microsoft.OData.Client.UriOperationParameter("startYear", startYear),
+                    new global::Microsoft.OData.Client.UriOperationParameter("endYear", endYear));
+        }
+    }
+    /// <summary>
+    /// Class containing all extension methods
+    /// </summary>
+    public static class ExtensionMethods
+    {
+        /// <summary>
+        /// There are no comments for MakePublic in the schema.
+        /// </summary>
+        public static global::Microsoft.OData.Client.DataServiceActionQuerySingle<global::StartupService.Models.Company> MakePublic(this global::Microsoft.OData.Client.DataServiceQuery<global::StartupService.Models.Company> source, int company)
+        {
+            if (!source.IsComposable)
+            {
+                throw new global::System.NotSupportedException("The previous function is not composable.");
+            }
+
+            return new global::Microsoft.OData.Client.DataServiceActionQuerySingle<global::StartupService.Models.Company>(source.Context, source.AppendRequestUri("Default.MakePublic"), new global::Microsoft.OData.Client.BodyOperationParameter("company", company));
         }
     }
 }

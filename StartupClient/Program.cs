@@ -15,28 +15,15 @@ namespace StartupClient
 
         static async Task Main(string[] args)
         {
-            //await InteractWithService();
-            //var companies = await container.Companies.Expand("Founders").ExecuteAsync();
-            //Console.WriteLine("{0}Final company list:{0}", Environment.NewLine);
+            await InteractWithService();
+            var companies = await container.Companies.Expand("Founders").ExecuteAsync();
+            Console.WriteLine("{0}Final company list:{0}", Environment.NewLine);
 
-            //foreach (var company in companies)
-            //{
-            //    DisplayCompany(company);
-            //    Console.WriteLine();
-            //}
-
-            await TestFunction();
-        }
-
-        static async Task TestFunction()
-        {
-            var param = new List<DummyType>();
-            param.AddRange(new DummyType[] {
-                new DummyType { Foo = 1, Bar = 2 },
-                new DummyType { Foo = 2, Bar = 4 }
-            });
-            var response = await container.DummyFunc(param).GetValueAsync();
-            Console.WriteLine("Function result {0}", response);
+            foreach (var company in companies)
+            {
+                DisplayCompany(company);
+                Console.WriteLine();
+            }
         }
 
         static async Task InteractWithService()
@@ -65,7 +52,7 @@ namespace StartupClient
                 Name = "Acme",
                 Type = CompanyType.Public,
                 YearFounded = 2008,
-                Location = new Address { City = "Mombasa", Country = "Kenya" }
+                Location = new Address { City = "Nairobi", Country = "Kenya" }
             };
             container.AddToCompanies(newCompany);
             await container.SaveChangesAsync();
@@ -79,12 +66,38 @@ namespace StartupClient
                 DisplayCompany(toDelete, "Removed company");
             }
 
+            var topLocation = await container.MostPopularLocationInPeriod(1970, 2010).GetValueAsync();
+            DisplayAddress(topLocation, "Top Location");
+
+            var toAdd = new Company
+            {
+                Id = 200,
+                Name = "Industry Corp",
+                Type = CompanyType.Private,
+                YearFounded = 2019,
+                Location = new Address { City = "Mombasa", Country = "Kenya" }
+            };
+            container.AddToCompanies(toAdd);
+
+            var toUpdate = companies.FirstOrDefault(c => c.Name.Contains("Microsoft"));
+            toUpdate.Name = "Microsoft Inc";
+            container.UpdateObject(toUpdate);
+
+            container.DeleteObject(newCompany);
+
+            var batchResponse = await container.SaveChangesAsync(SaveChangesOptions.BatchWithSingleChangeset);
+            Console.WriteLine("Batch responses:");
+            foreach (var response in batchResponse)
+            {
+                Console.WriteLine("Status code: {0}", response.StatusCode);
+            }
         }
 
         static void DisplayCompany(Company company, string message = "")
         {
             if (message.Length > 0)
             {
+                Console.WriteLine();
                 Console.WriteLine(message);
             }
             Console.WriteLine(company.Name);
@@ -101,7 +114,15 @@ namespace StartupClient
             }
             Console.WriteLine();
         }
+
+        static void DisplayAddress(Address address, string message = "")
+        {
+            if (message.Length > 0)
+            {
+                Console.WriteLine();
+                Console.WriteLine(message);
+            }
+            Console.WriteLine("{0}, {1}", address.City, address.Country);
+        }
     }
-
-
 }
