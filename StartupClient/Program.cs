@@ -15,7 +15,7 @@ namespace StartupClient
 
         static async Task Main(string[] args)
         {
-            await InteractWithService();
+            InteractWithService().Wait();
             var companies = await container.Companies.Expand("Founders").ExecuteAsync();
             Console.WriteLine("{0}Final company list:{0}", Environment.NewLine);
 
